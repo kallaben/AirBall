@@ -210,7 +210,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a571f92bf35417149994c577e5a7d498, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gazingObject: {fileID: 0}
+  gazingObject: {fileID: 963194225}
 --- !u!1 &443364159
 GameObject:
   m_ObjectHideFlags: 0
@@ -434,8 +434,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68fc2e0bd73fb4a4d9cf0be861cde6d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PickupDistance: 15
-  moveForce: 150
+  PickupDistance: 2.1
+  MoveForce: 250
+  ThrowForce: 1000
 --- !u!135 &850339067
 SphereCollider:
   m_ObjectHideFlags: 0

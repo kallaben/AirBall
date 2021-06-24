@@ -10,8 +10,8 @@ public class Pickup : MonoBehaviour, IGazeReceiver
     public float PickupDistance = 20f;
     private bool pickedUp = false;
     private GameObject pickedUpBy;
-
-    public float moveForce = 250f;
+    public float MoveForce = 250f;
+    public float ThrowForce = 250f;
 
     public void GazingUpon(GazingUponMessage message)
     {
@@ -48,11 +48,22 @@ public class Pickup : MonoBehaviour, IGazeReceiver
         if (Input.GetKey(KeyCode.Mouse1) && pickedUp)
         {
             DropObject();
+        } 
+        else if (Input.GetKey(KeyCode.E) && pickedUp)
+        {
+            ThrowObject();
         }
         else if (pickedUp)
         {
             MovePickedUpObject();
         }
+    }
+
+    private void ThrowObject()
+    {
+        var throwVector = pickedUpBy.transform.forward * ThrowForce;
+        GetComponent<Rigidbody>().AddForce(throwVector);
+        DropObject();
     }
 
     private void DropObject()
@@ -72,7 +83,7 @@ public class Pickup : MonoBehaviour, IGazeReceiver
         if (Vector3.Distance(transform.position, pointInFrontOfHolder) > 0.1f)
         {
             var moveDirection = pointInFrontOfHolder - transform.position;
-            GetComponent<Rigidbody>().AddForce(moveDirection * moveForce);
+            GetComponent<Rigidbody>().AddForce(moveDirection * MoveForce);
         }
     }
 }
