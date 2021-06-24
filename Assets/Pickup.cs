@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Ball : MonoBehaviour, IGazeReceiver
+public class Pickup : MonoBehaviour, IGazeReceiver
 {
     public float PickupDistance = 20f;
     private bool pickedUp = false;
@@ -15,7 +15,6 @@ public class Ball : MonoBehaviour, IGazeReceiver
 
     public void GazingUpon(GazingUponMessage message)
     {
-        Debug.Log("Is gazing upon. Distance: " + message.Distance + " KeyCode.Mouse0: " + Input.GetKey(KeyCode.Mouse0) + " pickedUpBy: " + message.Gazer.name);
         if (ObjectIsGettingPickedUp(message))
         {
             PickupObject(message);
@@ -26,7 +25,6 @@ public class Ball : MonoBehaviour, IGazeReceiver
     {
         pickedUp = true;
         pickedUpBy = message.Gazer;
-        Debug.Log("Is PickedUp");
 
         var rigidbody = GetComponent<Rigidbody>();
         rigidbody.useGravity = false;
@@ -41,7 +39,6 @@ public class Ball : MonoBehaviour, IGazeReceiver
 
     public void NotGazingUpon()
     {
-        Debug.Log("Is not gazing upon.");
         pickedUp = false;
     }
 
@@ -70,9 +67,11 @@ public class Ball : MonoBehaviour, IGazeReceiver
 
     private void MovePickedUpObject()
     {
-        if (Vector3.Distance(transform.position, pickedUpBy.transform.position) > 0.1f)
+        var pointInFrontOfHolder = pickedUpBy.transform.position + pickedUpBy.transform.forward * PickupDistance;
+
+        if (Vector3.Distance(transform.position, pointInFrontOfHolder) > 0.1f)
         {
-            var moveDirection = pickedUpBy.transform.position - transform.position;
+            var moveDirection = pointInFrontOfHolder - transform.position;
             GetComponent<Rigidbody>().AddForce(moveDirection * moveForce);
         }
     }
