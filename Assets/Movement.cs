@@ -49,13 +49,15 @@ public class Movement : MonoBehaviour
     {
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance);
 
-        if (isGrounded && velocity.y < 0)
+        if (isGrounded && velocity.y <= 0f)
         {
             velocity.y = 0f;
+        } 
+        else
+        {
+            velocity.y += gravity * Time.deltaTime;
+            controller.Move(velocity * Time.deltaTime);
         }
-
-        velocity.y += gravity * Time.deltaTime;
-        controller.Move(velocity * Time.deltaTime);
     }
 
     private void MoveXZ()
