@@ -6,7 +6,7 @@ namespace Assets.Utilities
 {
     public class GazeBroadcaster : MonoBehaviour
     {
-        public Camera gazingCamera;
+        public GameObject gazingObject;
 
         private GameObject lastGazedUpon;
 
@@ -17,14 +17,14 @@ namespace Assets.Utilities
 
         private void CheckGaze()
         {
-            var gazeRay = new Ray(gazingCamera.transform.position, gazingCamera.transform.rotation * Vector3.forward);
+            var gazeRay = new Ray(gazingObject.transform.position, gazingObject.transform.rotation * Vector3.forward);
 
             var wasHit = Physics.Raycast(gazeRay, out var hit, Mathf.Infinity);
             if (wasHit)
             {
                 var gazingUponMessage = new GazingUponMessage
                 {
-                    Gazer = gazingCamera.gameObject,
+                    Gazer = gazingObject.gameObject,
                     Distance = hit.distance,
                 };
 

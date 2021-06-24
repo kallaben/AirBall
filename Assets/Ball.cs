@@ -27,6 +27,7 @@ public class Ball : MonoBehaviour, IGazeReceiver
         pickedUp = true;
         pickedUpBy = message.Gazer;
         Debug.Log("Is PickedUp");
+
         var rigidbody = GetComponent<Rigidbody>();
         rigidbody.useGravity = false;
         rigidbody.drag = 10;
