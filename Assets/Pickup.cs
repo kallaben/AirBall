@@ -1,89 +1,84 @@
-using Assets.Messages;
-using Assets.Receivers;
-using System;
-using System.Collections;
-using System.Collections.Generic;
+using Assets.Interfaces;
 using UnityEngine;
 
-public class Pickup : MonoBehaviour, IGazeReceiver
+public class Pickup : MonoBehaviour, IPickup
 {
     public float PickupDistance = 20f;
-    private bool pickedUp = false;
-    private GameObject pickedUpBy;
     public float MoveForce = 250f;
     public float ThrowForce = 250f;
+    private GameObject pickedUpObject;
 
-    public void GazingUpon(GazingUponMessage message)
+    void FixedUpdate()
     {
-        if (ObjectIsGettingPickedUp(message))
+        if (Input.GetKey(KeyCode.Mouse0) && pickedUpObject == null && HasPickupableObjectWithinRange(out var objectToPickup))
         {
-            PickupObject(message);
+            PickupObject(objectToPickup);
         }
-    }
-
-    private void PickupObject(GazingUponMessage message)
-    {
-        pickedUp = true;
-        pickedUpBy = message.Gazer;
-
-        var rigidbody = GetComponent<Rigidbody>();
-        rigidbody.useGravity = false;
-        rigidbody.drag = 10;
-        rigidbody.transform.parent = pickedUpBy.transform;
-    }
-
-    private bool ObjectIsGettingPickedUp(GazingUponMessage message)
-    {
-        return message.Distance <= PickupDistance && Input.GetKey(KeyCode.Mouse0) && !pickedUp;
-    }
-
-    public void NotGazingUpon()
-    {
-        pickedUp = false;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (Input.GetKey(KeyCode.Mouse1) && pickedUp)
+        else if (Input.GetKey(KeyCode.Mouse1) && pickedUpObject != null)
         {
-            DropObject();
+            DropObject(pickedUpObject);
         } 
-        else if (Input.GetKey(KeyCode.E) && pickedUp)
+        else if (Input.GetKey(KeyCode.E) && pickedUpObject != null)
         {
             ThrowObject();
         }
-        else if (pickedUp)
+        else if (pickedUpObject != null)
         {
             MovePickedUpObject();
         }
     }
 
-    private void ThrowObject()
+    private void PickupObject(GameObject objectToPickup)
     {
-        var throwVector = pickedUpBy.transform.forward * ThrowForce;
-        GetComponent<Rigidbody>().AddForce(throwVector);
-        DropObject();
+        var rigidbody = objectToPickup.GetComponent<Rigidbody>();
+        rigidbody.useGravity = false;
+        rigidbody.drag = 10;
+        rigidbody.transform.parent = transform;
+        pickedUpObject = objectToPickup;
     }
 
-    private void DropObject()
+    private bool HasPickupableObjectWithinRange(out GameObject pickupableObject)
     {
-        pickedUp = false;
-        pickedUpBy = null;
-        var rigidbody = GetComponent<Rigidbody>();
+        pickupableObject = null;
+        if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out var hit, PickupDistance) && 
+            hit.transform.gameObject.GetComponent<Rigidbody>() != null)
+        {
+            pickupableObject = hit.transform.gameObject;
+            return true;
+        }
+
+        return false;
+    }
+
+    private void ThrowObject()
+    {
+        var throwVector = transform.forward * ThrowForce;
+        pickedUpObject.GetComponent<Rigidbody>().AddForce(throwVector);
+        DropObject(pickedUpObject);
+    }
+
+    private void DropObject(GameObject obj)
+    {
+        var rigidbody = obj.GetComponent<Rigidbody>();
         rigidbody.useGravity = true;
         rigidbody.drag = 1;
         rigidbody.transform.parent = null;
+        pickedUpObject = null;
     }
 
     private void MovePickedUpObject()
     {
-        var pointInFrontOfHolder = pickedUpBy.transform.position + pickedUpBy.transform.forward * PickupDistance;
+        var pointInFrontOfHolder = transform.position + transform.forward * PickupDistance;
 
-        if (Vector3.Distance(transform.position, pointInFrontOfHolder) > 0.1f)
+        if (Vector3.Distance(pickedUpObject.transform.position, pointInFrontOfHolder) > 0.1f)
         {
-            var moveDirection = pointInFrontOfHolder - transform.position;
-            GetComponent<Rigidbody>().AddForce(moveDirection * MoveForce);
+            var moveDirection = pointInFrontOfHolder - pickedUpObject.transform.position;
+            pickedUpObject.GetComponent<Rigidbody>().AddForce(moveDirection * MoveForce);
         }
+    }
+
+    public bool IsHoldingObject()
+    {
+        return pickedUpObject != null;
     }
 }

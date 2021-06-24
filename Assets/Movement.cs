@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using Assets.Interfaces;
 using UnityEngine;
 
 public class Movement : MonoBehaviour
@@ -15,11 +14,12 @@ public class Movement : MonoBehaviour
 
     private Vector3 velocity;
     private bool isGrounded;
+    private IPickup pickupComponent;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        pickupComponent = GetComponentInChildren<IPickup>();
     }
 
     // Update is called once per frame
@@ -33,7 +33,7 @@ public class Movement : MonoBehaviour
     private void MoveY()
     {
         ApplyGravity();
-        if (Input.GetButtonDown("Jump") && isGrounded)
+        if (Input.GetButtonDown("Jump") && isGrounded && !pickupComponent.IsHoldingObject())
         {
             ApplyJump();
         }
